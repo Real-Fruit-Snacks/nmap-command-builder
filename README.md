@@ -24,6 +24,7 @@ ever leaves the page. Open `index.html` from a USB stick and it works.
 ## Features
 
 - Toggle scan type, ports, service/OS detection, timing, and output format.
+- One-click example scans (quick, service+OS, full TCP, ping sweep, UDP, vuln).
 - The command assembles live as you choose options.
 - Copy-ready output for the terminal.
 - **Both themes, six accents** — dark by default, light by preference or toggle; inputs, scrollbars and focus rings all follow the theme.
