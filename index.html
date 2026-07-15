@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nmap Command Builder</title>
+<meta name="description" content="Toggle scan type, ports, detection, timing, and output — the nmap command assembles live, every flag explained, with privilege notes and a copy button.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Crect%20width='16'%20height='16'%20rx='3'%20fill='%23090c0d'/%3E%3Cpath%20d='M3.5%205L6.5%208L3.5%2011'%20fill='none'%20stroke='%2363f2ab'%20stroke-width='1.4'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Crect%20x='8'%20y='9.6'%20width='5'%20height='1.5'%20rx='0.5'%20fill='%2363f2ab'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0e1214">
+<script>(function(){try{
+var t=localStorage.getItem("nmap-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);
+var a=localStorage.getItem("nmap-accent");if(a&&"12345".indexOf(a)>-1)document.documentElement.setAttribute("data-accent",a);
+var pm=localStorage.getItem("nmap-pet");document.documentElement.setAttribute("data-pet",pm==="off"?"off":(pm==="cursor"?"cursor":"float"));
+var ps=parseInt(localStorage.getItem("nmap-pet-size"),10);if(ps>=16&&ps<=64)document.documentElement.style.setProperty("--pet-size",ps+"px");
+var po=parseInt(localStorage.getItem("nmap-pet-opacity"),10);if(po>=15&&po<=100)document.documentElement.style.setProperty("--pet-base-opacity",(po/100).toFixed(3));
+}catch(e){}})();</script>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header class="topbar">
+  <span class="manifest-label site-title">NMAP COMMAND BUILDER</span>
+  <span class="topbar-actions">
+    <button id="btn-settings" class="icon-btn" title="Settings (s)" aria-label="Settings"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+    <button id="btn-theme" class="icon-btn" title="Toggle theme (t)" aria-label="Toggle theme"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13 9.5A5.5 5.5 0 1 1 6.5 3 4.5 4.5 0 0 0 13 9.5Z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></button>
+  </span>
+</header>
+<main>
+  <article class="note note-wide">
+    <header class="note-header"><h1>Nmap Command Builder</h1><p class="tool-desc">Toggle scan type, ports, detection, timing, and output — the nmap command assembles live, every flag explained, with privilege notes and a copy button.</p></header>
+<p>Pick what to scan and how — the <code>nmap</code> command assembles live below, with a
+plain-language summary and privilege notes. Nothing runs here; copy the command and run it
+only against hosts you are authorized to test.</p>
+
+<div class="nm-form">
+  <div class="nm-row">
+    <label class="manifest-label" for="nm-targets">target(s)</label>
+    <input id="nm-targets" type="text" value="scanme.nmap.org" autocomplete="off"
+      spellcheck="false" placeholder="192.168.1.0/24, 10.0.0.1-50, host.example.com">
+  </div>
+
+  <div class="nm-row">
+    <label class="manifest-label" for="nm-scan">scan type</label>
+    <select id="nm-scan">
+      <optgroup label="port scans">
+        <option value="-sS" selected>TCP SYN (-sS)</option>
+        <option value="-sT">TCP connect (-sT)</option>
+        <option value="-sU">UDP (-sU)</option>
+        <option value="-sA">TCP ACK (-sA)</option>
+        <option value="-sF">TCP FIN (-sF)</option>
+        <option value="-sX">Xmas (-sX)</option>
+        <option value="-sN">TCP Null (-sN)</option>
+      </optgroup>
+      <optgroup label="no port scan">
+        <option value="-sn">ping sweep (-sn)</option>
+        <option value="-sL">list scan (-sL)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="nm-row" id="nm-row-ports">
+    <label class="manifest-label" for="nm-ports">ports</label>
+    <span class="nm-inline">
+      <select id="nm-ports">
+        <option value="" selected>default (top 1000)</option>
+        <option value="-F">fast — top 100 (-F)</option>
+        <option value="top">top N (--top-ports)</option>
+        <option value="spec">specific (-p)</option>
+        <option value="-p-">all 65535 (-p-)</option>
+      </select>
+      <input id="nm-topn" type="number" min="1" max="65535" value="20" hidden>
+      <input id="nm-portspec" type="text" placeholder="22,80,443,8000-8100"
+        autocomplete="off" spellcheck="false" hidden>
+    </span>
+  </div>
+
+  <div class="nm-row" id="nm-row-detect">
+    <label class="manifest-label">detection</label>
+    <div class="nm-checks">
+      <label class="nm-check"><input id="nm-sv" type="checkbox"> version (<code>-sV</code>)</label>
+      <label class="nm-check"><input id="nm-o" type="checkbox"> OS (<code>-O</code>)</label>
+      <label class="nm-check"><input id="nm-sc" type="checkbox"> default scripts (<code>-sC</code>)</label>
+      <label class="nm-check"><input id="nm-a" type="checkbox"> aggressive (<code>-A</code>)</label>
+    </div>
+  </div>
+
+  <div class="nm-row" id="nm-row-script">
+    <label class="manifest-label" for="nm-script">NSE script</label>
+    <input id="nm-script" type="text" autocomplete="off" spellcheck="false"
+      placeholder="vuln, http-title, smb-os-discovery… (--script)">
+  </div>
+
+  <div class="nm-row">
+    <label class="manifest-label">discovery</label>
+    <div class="nm-checks">
+      <label class="nm-check"><input id="nm-pn" type="checkbox"> skip host discovery (<code>-Pn</code>)</label>
+      <label class="nm-check"><input id="nm-n" type="checkbox"> no DNS (<code>-n</code>)</label>
+      <label class="nm-check"><input id="nm-6" type="checkbox"> IPv6 (<code>-6</code>)</label>
+    </div>
+  </div>
+
+  <div class="nm-row">
+    <label class="manifest-label" for="nm-timing">timing</label>
+    <select id="nm-timing">
+      <option value="" selected>default (T3)</option>
+      <option value="-T0">paranoid (-T0)</option>
+      <option value="-T1">sneaky (-T1)</option>
+      <option value="-T2">polite (-T2)</option>
+      <option value="-T3">normal (-T3)</option>
+      <option value="-T4">aggressive (-T4)</option>
+      <option value="-T5">insane (-T5)</option>
+    </select>
+  </div>
+
+  <div class="nm-row">
+    <label class="manifest-label">reporting</label>
+    <div class="nm-checks">
+      <label class="nm-check"><input id="nm-open" type="checkbox"> open ports only (<code>--open</code>)</label>
+      <label class="nm-check"><input id="nm-v" type="checkbox"> verbose (<code>-v</code>)</label>
+      <label class="nm-check"><input id="nm-reason" type="checkbox"> show reason (<code>--reason</code>)</label>
+    </div>
+  </div>
+
+  <div class="nm-row">
+    <label class="manifest-label" for="nm-output">save output</label>
+    <span class="nm-inline">
+      <select id="nm-output">
+        <option value="" selected>none</option>
+        <option value="-oN">normal (-oN)</option>
+        <option value="-oX">XML (-oX)</option>
+        <option value="-oG">grepable (-oG)</option>
+        <option value="-oA">all formats (-oA)</option>
+      </select>
+      <input id="nm-outfile" type="text" placeholder="scan (basename or filename)"
+        autocomplete="off" spellcheck="false" hidden>
+    </span>
+  </div>
+</div>
+
+<div id="nm-errors" class="nm-error" hidden></div>
+<div id="nm-summary" class="nm-summary" hidden></div>
+
+<figure class="code-block">
+<figcaption class="code-lang manifest-label">nmap</figcaption>
+<pre class="code-body"><code id="nm-output-cmd"></code></pre>
+</figure>
+
+<div id="nm-notes" class="nm-notes" hidden></div>
+
+<p class="nm-note">Raw-packet scans (<code>-sS</code>, <code>-sU</code>, the FIN/Xmas/Null
+scans), <code>-O</code>, and <code>-A</code> need root; without it nmap silently falls back
+to a slower <code>-sT</code> connect scan. Port scanning without permission is unlawful in
+many places — only scan systems you own or are explicitly authorized to test.</p>
+<details class="tool-learn"><summary class="manifest-label">nmap 101</summary><div class="tool-learn-body"><h3>What nmap does</h3>
+<p><a href="https://nmap.org/">Nmap</a> ("Network Mapper") discovers hosts and the
+services they expose. A run has up to three phases: <strong>host discovery</strong> (which
+targets are alive), <strong>port scanning</strong> (which ports are open, closed, or
+filtered), and optional <strong>detection</strong> (service versions, OS, and NSE scripts).
+The flags below map one-to-one onto the controls in the builder.</p>
+
+<h3>Specifying targets</h3>
+<p>Targets go last on the command line and are split on spaces, so you can mix forms:</p>
+<table>
+<thead><tr><th>form</th><th>example</th></tr></thead>
+<tbody>
+<tr><td>single host</td><td><code>scanme.nmap.org</code> or <code>10.0.0.5</code></td></tr>
+<tr><td>CIDR range</td><td><code>192.168.1.0/24</code> (256 addresses)</td></tr>
+<tr><td>octet range</td><td><code>10.0.0.1-50</code>, <code>10.0.0-2.*</code></td></tr>
+<tr><td>from a file</td><td><code>-iL targets.txt</code></td></tr>
+</tbody>
+</table>
+
+<h3>Scan types</h3>
+<table>
+<thead><tr><th>flag</th><th>scan</th><th>notes</th></tr></thead>
+<tbody>
+<tr><td><code>-sS</code></td><td>TCP SYN ("half-open")</td><td>the default when run as root — fast and relatively quiet; never completes the handshake</td></tr>
+<tr><td><code>-sT</code></td><td>TCP connect</td><td>the fallback without root — uses the OS to complete each connection, so it's slower and more logged</td></tr>
+<tr><td><code>-sU</code></td><td>UDP</td><td>finds DNS, SNMP, DHCP and the like; slow, because closed UDP ports are rate-limited</td></tr>
+<tr><td><code>-sA</code></td><td>TCP ACK</td><td>maps firewall rules (filtered vs unfiltered) rather than open ports</td></tr>
+<tr><td><code>-sF</code> / <code>-sX</code> / <code>-sN</code></td><td>FIN / Xmas / Null</td><td>stealthy probes that can slip past simple filters on some stacks</td></tr>
+<tr><td><code>-sn</code></td><td>ping sweep</td><td>host discovery only — no port scan. Great for "what's alive on this subnet?"</td></tr>
+<tr><td><code>-sL</code></td><td>list scan</td><td>just lists (and reverse-resolves) the targets without sending probes</td></tr>
+</tbody>
+</table>
+<p>The raw-packet scans (<code>-sS</code>, <code>-sU</code>, <code>-sA</code>, and the
+FIN/Xmas/Null trio) need root. Without it nmap silently uses <code>-sT</code>.</p>
+
+<h3>Choosing ports</h3>
+<p>By default nmap scans the 1,000 most common ports. Narrow or widen with:</p>
+<table>
+<thead><tr><th>flag</th><th>meaning</th></tr></thead>
+<tbody>
+<tr><td><code>-F</code></td><td>fast — the top 100 ports only</td></tr>
+<tr><td><code>--top-ports N</code></td><td>the N most common ports</td></tr>
+<tr><td><code>-p 22,80,443</code></td><td>an explicit list or range (<code>-p 1-1024</code>, <code>-p U:53,T:80</code>)</td></tr>
+<tr><td><code>-p-</code></td><td>all 65,535 ports — thorough but slow</td></tr>
+</tbody>
+</table>
+
+<h3>Detection</h3>
+<ul>
+<li><strong><code>-sV</code></strong> — probe open ports to identify the service and version.</li>
+<li><strong><code>-O</code></strong> — guess the operating system from TCP/IP behaviour (needs root).</li>
+<li><strong><code>-sC</code></strong> — run the <em>default</em> set of NSE scripts (equivalent to <code>--script=default</code>).</li>
+<li><strong><code>--script</code></strong> — run named NSE scripts or categories, e.g. <code>--script vuln</code>, <code>--script http-title</code>, <code>--script "smb-*"</code>.</li>
+<li><strong><code>-A</code></strong> — "aggressive": turns on <code>-sV -O -sC</code> and <code>--traceroute</code> at once. Thorough, but noisy and root-only.</li>
+</ul>
+
+<h3>Timing (<code>-T0</code>–<code>-T5</code>)</h3>
+<p>Templates trade speed for stealth and reliability. <code>-T0</code> (paranoid) and
+<code>-T1</code> (sneaky) space probes out to evade IDS; <code>-T3</code> (normal) is the
+default; <code>-T4</code> (aggressive) is the usual choice on a fast, reliable network;
+<code>-T5</code> (insane) sacrifices accuracy for raw speed and can overwhelm hosts.</p>
+
+<h3>Reading and saving results</h3>
+<p>Each port is reported as <strong>open</strong>, <strong>closed</strong> (reachable but
+nothing listening), or <strong>filtered</strong> (a firewall dropped the probe).
+<code>--open</code> hides all but open ports; <code>--reason</code> shows why nmap reached
+each verdict; <code>-v</code> adds progress detail. To keep the results, use
+<code>-oN file</code> (human-readable), <code>-oX file</code> (XML),
+<code>-oG file</code> (grepable), or <code>-oA basename</code> to write all three at once.</p>
+
+<h3>A word on authorization</h3>
+<p>Scanning hosts you don't own or have written permission to test can be illegal and will
+often trip intrusion detection. Practise against
+<a href="https://scanme.nmap.org/">scanme.nmap.org</a> (which Nmap provides for exactly
+this) or your own lab.</p>
+</div></details>
+  </article>
+</main>
+<footer class="footer">
+  <span class="mono">runs entirely in your browser · nothing is uploaded</span>
+  <a class="mono" href="https://github.com/Real-Fruit-Snacks/nmap-command-builder" rel="noopener">source</a>
+</footer>
+
+<div id="settings-panel" class="settings-panel" role="dialog" aria-modal="true" aria-label="Settings" hidden></div>
+<div id="settings-scrim" class="settings-scrim" hidden></div>
+<div id="help-overlay" class="help-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" hidden></div>
+<div id="site-pet" aria-hidden="true"><div class="pet-tilt"><div class="pet-sprite" title="pet the ghost to recolor it"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path class="pet-body" d="M2 16 V7 Q2 1 8 1 Q14 1 14 7 V16 L12 14.4 L10 16 L8 14.4 L6 16 L4 14.4 Z"/><g class="pet-eyes-open"><rect x="5" y="6" width="2" height="3"/><rect x="9" y="6" width="2" height="3"/></g><g class="pet-eyes-closed"><rect x="5" y="8" width="2" height="1"/><rect x="9" y="8" width="2" height="1"/></g><g class="pet-eyes-happy"><path d="M4.6 8 L6 6.6 L7.4 8"/><path d="M8.6 8 L10 6.6 L11.4 8"/></g></svg></div></div></div>
+
+<script src="js/settings.js"></script>
+<script src="js/tool.js"></script>
+<script src="js/content.js"></script>
+<script src="js/pet.js"></script>
+</body>
+</html>
