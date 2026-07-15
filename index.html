@@ -32,6 +32,48 @@ var po=parseInt(localStorage.getItem("nmap-pet-opacity"),10);if(po>=15&&po<=100)
 plain-language summary and privilege notes. Nothing runs here; copy the command and run it
 only against hosts you are authorized to test.</p>
 
+<div class="tool-examples" id="nm-examples" role="group" aria-label="Example scans">
+  <span class="manifest-label tool-examples-label">examples</span>
+  <button type="button" data-ex="0">quick scan</button>
+  <button type="button" data-ex="1">service + OS</button>
+  <button type="button" data-ex="2">full TCP + scripts</button>
+  <button type="button" data-ex="3">ping sweep</button>
+  <button type="button" data-ex="4">UDP top ports</button>
+  <button type="button" data-ex="5">vuln scan</button>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var form = document.querySelector(".nm-form"), box = document.getElementById("nm-examples");
+  if (!form || !box) return;
+  var P = [
+    { "nm-targets": "192.168.1.0/24", "nm-scan": "-sS", "nm-ports": "-F", "nm-timing": "-T4", "nm-open": true },
+    { "nm-targets": "10.0.0.5", "nm-scan": "-sS", "nm-sv": true, "nm-o": true, "nm-timing": "-T4" },
+    { "nm-targets": "target.example.com", "nm-scan": "-sS", "nm-ports": "-p-", "nm-sv": true, "nm-sc": true, "nm-timing": "-T4" },
+    { "nm-targets": "192.168.1.0/24", "nm-scan": "-sn" },
+    { "nm-targets": "10.0.0.5", "nm-scan": "-sU", "nm-ports": "top", "nm-topn": "50", "nm-timing": "-T4" },
+    { "nm-targets": "10.0.0.5", "nm-scan": "-sS", "nm-sv": true, "nm-script": "vuln", "nm-timing": "-T4" }
+  ];
+  function apply(p) {
+    Array.prototype.forEach.call(form.querySelectorAll("input,textarea"), function (e) {
+      if (e.type === "checkbox" || e.type === "radio") e.checked = e.defaultChecked; else e.value = e.defaultValue;
+    });
+    Array.prototype.forEach.call(form.querySelectorAll("select"), function (s) {
+      var d = s.querySelector("option[selected]"); if (d) s.value = d.value; else s.selectedIndex = 0;
+    });
+    Object.keys(p).forEach(function (id) {
+      var e = document.getElementById(id); if (!e) return;
+      if (e.type === "checkbox") e.checked = !!p[id]; else e.value = p[id];
+    });
+    var f = form.querySelector("input,select,textarea");
+    f.dispatchEvent(new Event("change", { bubbles: true }));
+    f.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  box.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-ex]"); if (b) apply(P[+b.getAttribute("data-ex")]);
+  });
+});
+</script>
+
 <div class="nm-form">
   <div class="nm-row">
     <label class="manifest-label" for="nm-targets">target(s)</label>
